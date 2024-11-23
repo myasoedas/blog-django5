@@ -6,7 +6,7 @@ from blog.views import home
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('ckeditor/', include('ckeditor_uploader.urls')),
+    path('ckeditor/', include('django_ckeditor_5.urls')),
     path('', home, name='home'),
 ]
 

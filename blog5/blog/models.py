@@ -1,6 +1,7 @@
+from django.conf import settings
 from django.db import models
 from django.utils import timezone
-from ckeditor_uploader.fields import RichTextUploadingField
+from django_ckeditor_5.fields import CKEditor5Field
 
 
 class Post(models.Model):
@@ -40,10 +41,10 @@ class Post(models.Model):
         verbose_name="Описание страницы (meta description)",
         help_text="Краткое описание для поисковых систем (не более 160 символов)"
     )
-    author = models.CharField(
-        max_length=160,
-        verbose_name="Автор статьи",
-        help_text="Имя автора статьи или страницы"
+    author = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='blog_posts'
     )
     robots = models.CharField(
         max_length=500,
@@ -57,10 +58,8 @@ class Post(models.Model):
         default="index, follow",
         help_text="Укажите, как поисковые системы должны обрабатывать страницу"
     )
-    body = RichTextUploadingField(
-        verbose_name="Содержимое статьи",
-        help_text="Основной текст статьи с поддержкой форматирования и загрузки изображений"
-    )
+    body = CKEditor5Field(config_name='default',
+                          verbose_name="Текст публикации")
     publish = models.DateTimeField(default=timezone.now)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
@@ -74,9 +73,10 @@ class Post(models.Model):
         ordering = ['-publish']
         indexes = [
             models.Index(fields=['-publish']),
+            models.Index(fields=['slug']),
         ]
-        verbose_name = "Модель страницы"
-        verbose_name_plural = "Модели страниц"
+        verbose_name = "Пост"
+        verbose_name_plural = "Посты"
 
     def __str__(self):
         return self.title
